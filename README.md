@@ -37,163 +37,181 @@ Where going left is its positive direction.
 
 Now we have three lines facing away from the origin line.
 These are the main axes.
-Let's label these as follows:
+Let us use variables `Q`, `R`, and `S` as labels for the axes:
 
-- Axis Q - To top left
-- Axis R - Straight up
-- Axis S - To top right
+- Axis Q - Straight up
+- Axis R - To top right
+- Axis S - To top left
 
 ![Q, R, and S Axes](https://cdn.eyzi.dev/hex-study/axes.png)
 
+Since the axis perpendicular to the <strong>ORIGIN LINE</strong> is <strong>AXIS Q</strong>, we'll give it a bit more significance over the other two axes.
+
 ## Direction
 
-Since the <strong>R AXIS</strong> is perpendicular to the <strong>ORIGIN LINE</strong>, let us give it a bit of a significance over the other two axes.
+Where <strong>Q AXIS</strong> faces is its positive direction.
+Meanwhile it is the negative direction for the other two axes.
 
-Where <strong>R AXIS</strong> faces (upwards in the image) is its positive direction.
-Meanwhile both <strong>Q AXIS</strong> and <strong>S AXIS</strong> are facing (upwards in the image) their negative directions.
-
-Now that labels are covered, we will rotate it 90 degrees clockwise so that the <strong>ORIGIN LINE</strong> is vertical and the <strong>R AXIS</strong> is horizontal.
+Now that labels are covered, we will rotate it 90 degrees clockwise so that the <strong>ORIGIN LINE</strong> is vertical and the <strong>Q AXIS</strong> is horizontal.
 
 ![Directions](https://cdn.eyzi.dev/hex-study/directions.png)
 
-## Traversal
-
-Let us take a hex grid and express each hexagon in an axis as its coordinates in `Q, R, S` format where the hexagon at `0, 0, 0` is the <strong>ORIGIN</strong>.
+Let us take a hex grid and express each hexagon in an axis as its coordinates in `(Q, R, S)` format where the hexagon at `(0, 0, 0)` is the <strong>ORIGIN</strong>.
 
 ![Labelled Axes](https://cdn.eyzi.dev/hex-study/coordinates.png)
 
-Now let's suppose we want to go to a hexagon that is not in an axis. For instance, the top-left of `0, -2, 0` from the <strong>ORIGIN</strong>:
+## Intuitiveness
+
+As we go further right, the <strong>Q AXIS</strong> gets bigger, which is the first value in our coordinates.
+Since this is a straight axis (i.e., completely horizontal or vertical), this would be the axis we use first when traversing the grid.
+
+As we go further up towards the positive side of the <strong>ORIGIN LINE</strong>, the <strong>R AXIS</strong> gets bigger, which is the second value in our coordinates.
+Together with the <strong>Q AXIS</strong>, this offers a familiar spatial configuration as in square grids.
+
+There's nothing intuitive about the <strong>S AXIS</strong> getting smaller as we move right or up.
+Still, there's a good reason for this decision.
+
+To explain that, let's assume that we take equal step, say `2`, on every axis. That is, 2 positive steps on the <strong>Q AXIS</strong>, 2 positive steps on the <strong>R AXIS</strong>, and 2 positive steps on the <strong>S AXIS</strong>. Where does that lead us?
+
+With the current configuration, those steps will lead us back to where we started.
+
+![Circular](https://cdn.eyzi.dev/hex-study/circular.png)
+
+Which makes for a nice function:
+```
+xQ + xR + xS = 0
+```
+
+Obviously, flipping directions would just mean changing some signs in that function for other calculations to still fit.
+However, I believe this particular equation adds to its intuitiveness.
+
+## Traversal
+
+Let's suppose we want to go to a hexagon that is not in an axis. For instance, the top-left of `(-2, 0, 0)` from the <strong>ORIGIN</strong>:
 
 ![Traversal 01](https://cdn.eyzi.dev/hex-study/traversal-01.png)
 
-How do we get there? Well, let's think of it as if we are taking a step on an axis at a time.
-In this case, we need to take two negative steps on the <strong>R AXIS</strong> and a postive step on the <strong>S AXIS</strong>.
-Another way to express it is:
+How do we get there?
+Well, let's think of it as if we are taking a step on an axis at a time.
+In this case, we need to take two negative steps on the <strong>Q AXIS</strong> and a postive step on the <strong>R AXIS</strong>.
+
+Visually, we can represent it as
 ```
-(0, 0, 0) + (0, -1, 0) + (0, -1, 0) + (0, 0, 1)
+(0, 0, 0) - Q - Q + R
 ```
-Or simply:
+Which in numerical form would be
 ```
-(0, 0, 0) + (0, -2, 1)
+(0, 0, 0) + (-1, 0, 0) + (-1, 0, 0) + (0, 1, 0)
 ```
-Which, when we add the value on each axis, we get:
+Or simply
 ```
-(0, -2, 1)
+(0, 0, 0) + (-2, 1, 0)
 ```
-And that's the coordinates of that hexagon relative to the <strong>ORIGIN</strong>.
+Which, when we add the value on each axis, we get
+```
+(-2, 1, 0)
+```
+And that's the coordinates of that hexagon <strong>ORIGIN</strong>.
 
 ![Traversal 02](https://cdn.eyzi.dev/hex-study/traversal-02.png)
 
 Notice how the axis steps can be in any order.
-We can choose to do the positive step on the <strong>S AXIS</strong> first, or second, and still arrive at the same coordinate.
+`-Q-Q+R`, or `-Q+R-Q`, or `+R-Q-Q` all lead to the same point and are expressed in the same numerical form.
+For our purposes, any groups of steps that can be expressed in the same numerical form is considered a single <strong>PATH</strong>.
 
-> Note that the coordinates are <i>always</i> relative to the <strong>ORIGIN</strong>.
+## Normalized Coordinates
 
-## Normalization
-
-Unlike in square grids, there are two (or more) ways to get to the same spot without negation.
-For instance, we can get to the same point `(0, -2, 1)` from the origin by taking two positive steps on the <strong>S AXIS</strong>, a negative step on the <strong>R AXIS</strong>, and a positive step on the <strong>Q AXIS</strong>.
+However, unlike in square grids, there is more than one <strong>PATH</strong> to get to the same spot.
+For instance, we can get to the same point `(-2, 1, 0)` from <strong>ORIGIN</strong> by taking 2 positive steps on the <strong>R AXIS</strong>, a negative step on the <strong>Q AXIS</strong>, and a positive step on the <strong>S AXIS</strong>.
 
 ![Traversal 03](https://cdn.eyzi.dev/hex-study/traversal-03.png)
 
-Yes!
-That is a valid coordinates for that hexagon.
-Though, having two (or more) ways to label a coordinate can be confusing.
+Does that make `(-1, 2, 1)` the coordinates of this hexagon?
+It can have <i>two (or more)</i> coordinates?!
 
-To solve this, let us take the concept of coordinate normalization.
-Let's say that the most <i>valid</i> coordinate is one with the least amount of steps taken.
+Yes, it can.
+Those coordinates are valid for that hexagon.
+Though, it does make it confusing not having unique coordinates for a specific cell.
 
-In the given case, the coordinates `(0, -2, 1)` takes three steps while the coordinates `(1, -1, 2)` takes four steps, and there is no shorter path to it. Thus, that hexagon will have the coordinates `(0, -2, 1)`.
+We can solve this by normalizing the coordinates.
+That is, formulating an equation such that it takes any valid coordinates of a particular cell and always gives back the same unique value which would be considered the <strong>NORMALIZED</strong> coordinates of that cell.
 
-Still, being able to express the same destination by steps is useful in game development.
+We can say that the <strong>NORMALIZED</strong> coordinates of a cell is the <strong>PATH</strong> with the shortest steps from the <strong>ORIGIN</strong>.
 
-Wait.
+In the given case, the coordinates `(0, -2, 1)` has three steps while `(-1, 2, 1)` has four. There is no <strong>PATH</strong> shorter than `(0, -2, 1)`.
+Therefore, the <strong>NORMALIZED</strong> coordinates of this cell is `(0, -2, 1)`.
+
+Wait!
 Does that mean we'll have to <i>count</i> the steps for each coordinate <i>and</i> find a shorter path <i>AND</i> confirm the shortest path?
 Isn't that an NP problem?!
 
-Fortunately, there is a crazy easy way to do so.
+Fortunately, there is a crazy easy way to do it.
 But first, let's fill the rest of the grid.
 
 ![Normalization 01](https://cdn.eyzi.dev/hex-study/normalization-01.png)
 
-Ah, yes.
-Emerging patterns.
-Don't you just love it?
+And talk about some <i>absolute</i> rules in this system.
 
-Let's talk about some of the <i>absolute</i> rules of this coordinate system.
+## Rules
 
-### 1) <strong>Flat Axis</strong>
+### <strong>Flat Axis</strong>
 
-There MUST <i>always</i> be at least one axis that is zero. The axis that does not contribute to the coordinates of a hexagon is what I call a <strong>FLAT AXIS</strong>.
+There MUST <i>always</i> be at least one axis that is zero. The axis that does not contribute to the <strong>NORMALIZED</strong> coordinates of a hexagon is what we'll call a <strong>FLAT AXIS</strong>.
 
 Only the <strong>ORIGIN</strong> has three <strong>FLAT AXES</strong>.
-Along an axis, the coordinates MUST have two <strong>FLAT AXES</strong>.
+Along an axis, the <strong>NORMALIZED</strong> coordinates MUST have two <strong>FLAT AXES</strong>.
 Otherwise, there MUST be one <strong>FLAT AXIS</strong>.
 
-### 2) <strong>Axis Pair</strong>
+When a given coordinates does not have a <strong>FLAT AXIS</strong>, then it is not <strong>NORMALIZED</strong>.
 
-If a coordinate has a single <strong>FLAT AXIS</strong>, the signs of the other axes MUST be opposite.
+### <strong>Axis Coordinates</strong>
 
-By definition, hexagons along an axis, including the <strong>ORIGIN</strong> are exceptions to this rule.
+Coordinates with at least two <strong>FLAT AXES</strong> is already considered <strong>NORMALIZED</strong>. This includes the <strong>ORIGIN</strong>.
 
-With these rules, let's discuss how we determine whether the given coordinates is normalized.
+### <strong>Inverse Pair</strong>
 
-<strong>Step 1</strong>: If the coordinates have more than one <strong>FLAT AXIS</strong>, then it is normalized.
+>Note: This rule only applies to coordinates with a single <strong>FLAT AXIS</strong> (i.e., non-axis coordinates)
 
-<strong>Step 2</strong>: Get the signs of its coefficients.
+When we format a given coordinates such that:
+- a zero is represented as `0`
+- a negative value is represented as `-1`
+- and a positive value is represented as `+1`
 
-<strong>Step 3</strong>: Add the signs of its coefficients.
+(or what we'll refer to as the given coordinates' <strong>SIGN FORMAT</strong>)
 
-<strong>Step 4</strong>: If the sum of Step 3 is zero, then it is normalized.
+Then the sum of the values of a coordinates' <strong>SIGN FORMAT</strong> MUST be zero.
 
-<strong>Step 5</strong>: Otherwise, it is not normalized.
+As an example, let's suppose a coordinates `(3, 0, 1)`.
 
-Steps 2 and 3 may be confusing so let's go through an example.
+This will have a <strong>SIGN FORMAT</strong> of `(1, 0, 1)`.
 
-For this, let's suppose a function that takes an integer and returns its sign:
+When we add the values
 ```
-function getIntegerSign (int n) {
-  return (n > 0) - (n < 0)
-}
+1 + 0 + 1
 ```
-If the passed argument is positive, this will return +1.
-If it's negative, this will return -1.
-If it's zero, this will return zero.
-
-Let's use the coordinates `(2, -2, 1)`
-
-Step 1: Does it have more than one <strong>FLAT AXIS</strong>? No.
-
-Step 2: Let's get the signs of its coefficients using the `getIntegerSign` function above.
-The result will be `(1, -1, 1)`
-
-Step 3: Add the signs of its coefficients.
+We get
 ```
-1 + (-1) + 1 = 1
+2
 ```
+Which is not zero. Therefore, the coordinates `(3, 0, 1)` is not <strong>NORMALIZED</strong>.
 
-Step 4: Is the sum zero? No.
+## Normalization Function
 
-Step 5: Then it is not normalized.
+So how <i>do</i> we normalize a given coordinates?
 
-So how do we normalize it? Here are the steps.
+Just subtract each value by the median value. Easy, right?
 
-<strong>Step 1</strong>: Get the median value <strong>D</strong> of all coefficients.
+Let's try it with our example above `(3, 0, 1)`.
 
-<strong>Step 2</strong>: Subtract every coefficient by <strong>D</strong>.
-
-That's it! Let's try it with our example above `(2, -2, 1)`.
-
-Step 1: The median of `2, -2, 1` is `1`.
-
-Step 2: Subtract every coefficient by `1`.
+As mentioned, we need to subtract each value by the median value. In this case, the median value is `1`:
 ```
-((2 - 1), (-2 - 1), (1 - 1))
-=(1, -3, 0)
+= ((3 - 1), (0 - 1), (1 - 1))
+= (2, -1, 0)
 ```
 
-So the normalized coordinates of `(2, -2, 1)` is `(1, -3, 0)`.
-That is the shortes path to that hexagon relative to the <strong>ORIGIN</strong>.
+So the normalized coordinates of `(3, 0, 1)` is `(2, -1, 0)`.
+
+That is the shortest path to that hexagon relative to the <strong>ORIGIN</strong>.
 That's this one!
 
 ![Normalization 02](https://cdn.eyzi.dev/hex-study/normalization-02.png)
@@ -201,28 +219,20 @@ That's this one!
 
 ## Patterns
 
-### 1) <strong>Magnitude</strong>
+### <strong>Magnitude</strong>
 
 If we draw a ring from the <strong>ORIGIN</strong> such that:
 - the zeroth ring consists only of the <strong>ORIGIN</strong>;
 - the bigger ring contains all hexagons that touch the smaller ring;
 - and a hexagon is part of only one ring
+
 Then the magnitude of a hexagon is the index of the ring that it belongs to.
 
 ![Magnitude](https://cdn.eyzi.dev/hex-study/magnitude.png)
 
 The magnitude of a hexagon MUST be the sum of the absolute values of the coefficients of its normalized coordinates
 
-### 2) <strong>Circular</strong>
-
-When you take equal number of steps on every axis, you MUST end up back where you started. Thus, the sum of the coefficients should be zero.
-
-```
-xQ + xR + xS = 0
-```
-![Circular](https://cdn.eyzi.dev/hex-study/circular.png)
-
-### 3) <strong>Diagonals</strong>
+### <strong>Diagonals</strong>
 
 In case you didn't know, hex grids do have diagonals. Just like in a square grid, you reach a diagonal by taking the same amount of steps on two axes.
 
@@ -233,42 +243,53 @@ The only difference is that, bound by the <strong>Axis Pair</strong> rule, diago
 
 ![Diagonals](https://cdn.eyzi.dev/hex-study/diagonals.png)
 
-
-
-### 4) <strong>Relative</strong>
+### <strong>Relative</strong>
 
 Traversal steps may be applied to any cell and the coordinates will still be valid.
 
-Let's revisit our earlier hexagon at coordinates `(0, -2, 1)`.
-To get here, we took two negative steps on the <strong>R AXIS</strong> and a positive step on the <strong>S AXIS</strong> from the <strong>ORIGIN</strong>.
+Let's revisit our earlier hexagon at coordinates `(-2, 1, 0)`.
+To get here, we took two negative steps on the <strong>Q AXIS</strong> and a positive step on the <strong>R AXIS</strong> from the <strong>ORIGIN</strong>.
 
 ```
-(0, 0, 0) + (0, -2, 1) = (0, -2, 1)
+(0, 0, 0) + (-2, 1, 0) = (-2, 1, 0)
 ```
 
-What if we apply the same steps from `(0, 3, -2)`?
+What if we apply the same steps from `(3, -2, 0)`?
 
 ```
-(0, 3, -2) + (0, -2, 1) = (0, 1, -1)
+(3, -2, 0) + (-2, 1, 0) = (1, -1, 0)
 ```
 
 ![Relative 01](https://cdn.eyzi.dev/hex-study/relative-01.png)
 
-Looks like it still works. How about the coordinates `(-1, 3, 0)`?
+Looks like it still works. How about the coordinates `(3, 0, -1)`?
 
 ```
-(-1, 3, 0) + (0, -2, 1) = (-1, 1, 1)
+(3, 0, -1) + (-2, 1, 0) = (1, 1, -1)
 ```
 
-The coordinates `(-1, 1, 1)` is valid, but it will be normalized to `(-2, 0, 0)`.
+The coordinates `(1, 1, -1)` is valid, but it will be normalized to `(0, 0, -2)`.
 
 ![Relative 02](https://cdn.eyzi.dev/hex-study/relative-02.png)
 
-### 5) <strong>Transposition</strong>
+Similarly, if we want to get the <strong>PATH</strong> from one coordinate to another, we simply get the difference of the destination coordinates and the source coordinates.
+
+If we want to go from `(-2, 0, 0)` to `(0, 0, -2)`
+```
+= (0, 0, -2) - (-2, 0, 0)
+= ((0 - -2), (0 - 0), (-2 - 0))
+= (2, 0, -2)
+```
+
+The shortest path to get from `(-2, 0, 0)` to `(0, 0, -2)` is `(2, 0, -2)`.
+
+![Relative 03](https://cdn.eyzi.dev/hex-study/relative-03.png)
+
+### <strong>Transposition</strong>
 
 While the alternating positive and negative axis is confusing, once you understand the basic concept, you should be able to apply any transposition to it as you please.
 
-In this example, we rotate the grid so the <strong>ORIGIN</strong> is on the bottom left and the positive <strong>R AXIS</strong> going upwards.
+In this example, we rotated the grid so the <strong>ORIGIN</strong> is on the bottom left with the positive <strong>Q AXIS</strong> going upwards.
 
 ![Transposition](https://cdn.eyzi.dev/hex-study/transposition.png)
 
